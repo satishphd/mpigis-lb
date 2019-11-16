@@ -1,0 +1,9 @@
+
+qsub -I -l walltime=01:00:00,nodes=2:ppn=20 -q devel
+
+sequential: ./io /Users/satishpuri/Desktop/spring_16/postdoc/mpiio/datasets/cemetery/cemetery /Users/satishpuri/Desktop/spring_16/postdoc/mpiio/datasets/osm_data/cemetery
+mpirun -np 2 ./mpiio 2 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports_data /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports_data
+
+/projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/allobjects
+
+Note: Only specify directory name without trailing /

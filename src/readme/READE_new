@@ -1,0 +1,9 @@
+qsub -I -l walltime=00:30:00,nodes=2:ppn=20 -q devel
+
+mpirun -np $PBS_NP /projects/dimos/mpiio/src/mpiover $PBS_NP /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/road_networkdirectory /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery/cemetery.csv
+
+mpirun -np 32 ./mpiio 32 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/roads10GB /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery/cemetery.csv 
+
+/projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery 
+
+mpirun -np 2 ./mpiio 2 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports_data /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports

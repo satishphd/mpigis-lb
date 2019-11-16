@@ -1,0 +1,58 @@
+CC = mpicxx
+LIBB = -L/usr/local/Cellar/geos/3.5.0/lib -lgeos
+#LIBB = -L/sw/geosoft/geos/lib -lgeos
+#CFLAGS = -Wall -c -std=c++0x -I/sw/geosoft/geos/include
+LIBRA = ../lib/libshp.a
+DEBUG = -g
+CFLAGS = -g -Wall -c -std=c++0x -I/usr/local/Cellar/geos/3.5.0/include
+LFLAGS = -Wall
+
+all: mpiio
+
+seq: io
+	
+io: sequentialIO.o join.o index.o WKTParser.o FileSplits.o config.o
+	$(CC) $(LFLAGS) -o io sequentialIO.o join.o index.o WKTParser.o FileSplits.o config.o $(LIBB)
+
+sequentialIO.o: sequentialIO.cpp
+	$(CC) $(CFLAGS) sequentialIO.cpp
+	
+mpiio: join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o driver.o
+	$(CC) $(LFLAGS) -o mpiio join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o driver.o $(LIBB)
+
+join.o: join.cpp
+	$(CC) $(CFLAGS) join.cpp
+
+index.o: index.cpp
+	$(CC) $(CFLAGS) index.cpp
+	
+FileSplits.o: FileSplits.cpp
+	$(CC) $(CFLAGS) FileSplits.cpp
+	
+MPI_File_Partitioner.o: MPI_File_Partitioner.cpp 
+	$(CC) $(CFLAGS) MPI_File_Partitioner.cpp
+
+WKTParser.o: WKTParser.cpp 
+	$(CC) $(CFLAGS) WKTParser.cpp
+	
+#ShapeFilePartitioner.o: ShapeFilePartitioner.cpp 
+#	$(CC) $(CFLAGS) ShapeFilePartitioner.cpp
+	
+config.o: config.cpp 
+	$(CC) $(CFLAGS) config.cpp
+	
+#uniformGrid.o: uniformGrid.cpp 
+#	$(CC) $(CFLAGS) uniformGrid.cpp
+
+roundRobinTaskMap.o: roundRobinTaskMap.cpp	
+	$(CC) $(CFLAGS) roundRobinTaskMap.cpp	
+
+#RtreeStructure.o: RtreeStructure.cpp
+#	$(CC) $(CFLAGS) RtreeStructure.cpp
+	
+driver.o: driver.cpp
+	$(CC) $(CFLAGS) driver.cpp
+	
+clean:
+	rm *o mpiio
+ 

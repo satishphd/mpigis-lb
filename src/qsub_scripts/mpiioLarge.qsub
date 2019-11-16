@@ -1,0 +1,21 @@
+# declare a name for this job to be sample_job
+#PBS -N RoadNetwork_cemetery_4_20_RTreeQuery
+# request a total of 40 processors for this job 
+#   (2 nodes and 20 processors(core) per node)
+#PBS -l nodes=4:ppn=20
+# request 4 hours of wall clock time
+#PBS -l walltime=00:30:00
+# combine PBS standard output and error files
+#PBS -j oe 
+# mail is sent to you when the job starts and when it terminates or aborts
+#PBS -m bea
+# specify your email address 
+#PBS -M satishpuri.dgp@gmail.com
+module load geos
+module load GCC/4.9.2-binutils-2.25
+module load MPICH/3.1.4-GCC-4.9.2-binutils-2.25 
+#change to the directory where you submitted the job 
+cd /projects/dimos/mpiio/src
+#include the full path to the name of your MPI program
+mpirun -np $PBS_NP /projects/dimos/mpiio/src/mpi $PBS_NP /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/road_networkdirectory /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery/cemetery.csv
+exit 0

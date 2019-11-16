@@ -1,0 +1,30 @@
+# declare a name for this job to be sample_job
+#PBS -N mpi_gpu_sports_2_2_64
+# request a total of 40 processors for this job 
+#   (2 nodes and 20 processors(core) per node)
+#PBS -l nodes=2:ppn=2:gpu
+# request 4 hours of wall clock time
+#PBS -l walltime=00:10:00
+# combine PBS standard output and error files
+#PBS -j oe 
+# mail is sent to you when the job starts and when it terminates or aborts
+#PBS -m bea
+# specify your email address 
+#PBS -M satishpuri.dgp@gmail.com
+module purge
+module load geos
+module load GCC/4.9.2-binutils-2.25
+module load MPICH/3.1.4-GCC-4.9.2-binutils-2.25 
+module load cuda/7.0
+#change to the directory where you submitted the job 
+cd /projects/dimos/mpiio/src
+#include the full path to the name of your MPI program
+
+mpirun -np $PBS_NP /projects/dimos/mpiio/src/gpu 64 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports_data /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/timing 2048 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/roads25GB /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/timing 8192 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/buildings /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/grid 4096 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/roads25GB /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/sports_data
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/grid 4096 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/roads25GB /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/lakes
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/timing 2048 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/road_networkdirectory /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery
+#mpirun -np $PBS_NP /projects/dimos/mpiio/src/grid 4096 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/allobjects /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/cemetery
+exit 0

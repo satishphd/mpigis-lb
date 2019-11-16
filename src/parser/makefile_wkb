@@ -1,0 +1,1 @@
+g++ -I/sw/geosoft/geos/include  -o prog wkb.cpp -L/sw/geosoft/geos/lib -lgeos

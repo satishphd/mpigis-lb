@@ -1,0 +1,21 @@
+# declare a name for this job to be sample_job
+#PBS -N seqSplitIO_RoadNetwork
+# request a total of 40 processors for this job 
+#   (2 nodes and 20 processors(core) per node)
+#PBS -l nodes=1:ppn=20
+# request 4 hours of wall clock time
+#PBS -l walltime=02:50:00
+# combine PBS standard output and error files
+#PBS -j oe 
+# mail is sent to you when the job starts and when it terminates or aborts
+#PBS -m bea
+# specify your email address 
+#PBS -M satishpuri.dgp@gmail.com
+module load geos
+module load GCC/4.9.2-binutils-2.25
+module load MPICH/3.1.4-GCC-4.9.2-binutils-2.25 
+#change to the directory where you submitted the job 
+cd /projects/dimos/mpiio/src
+#include the full path to the name of your MPI program
+./splitIO 150 /projects/dimos/GeoSpatial/data/SpatialHadoop_DataSets/road_networkdirectory/road_network
+exit 0

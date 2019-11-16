@@ -1,0 +1,192 @@
+GCC = g++
+CC = mpicxx
+#LIBB = -L/usr/local/Cellar/geos/3.5.0/lib 
+#LIBB = -L/sw/geosoft/geos/lib -lgeos
+LIBB = -L/usr/local/lib -lgeos
+
+#CFLAGS = -m64 -O2 -Wall -c -std=c++0x -I/sw/geosoft/geos/include
+CFLAGS = -m64 -O2 -Wall -c -std=c++0x -I/usr/local/include
+
+#LIBRA = ../lib/libshp.a ../lib/libtree.a
+LIBRA =
+DEBUG =
+#CFLAGS = -Wall -c -std=c++0x -I/usr/local/Cellar/geos/3.5.0/include
+CFLAGS = -m64 -O2 -Wall -c -std=c++0x -I/usr/local/include
+LFLAGS = -Wall
+
+# mpicxx -o mpicuda mpi_hello.c kernel.o -lcudart -L/sw/cuda/7.0/lib64 -I/sw/cuda/7.0/include
+
+#nvcc -m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -o stIntersect.o -c ST_Intersect.cu
+#mpicxx -m64 -o main.o -c main.cpp
+#mpicxx -m64 -o simpleMPI stIntersect.o main.o -lcudart -L/sw/cuda/6.5/lib64
+
+all: lbStatic
+
+seq: io
+
+mpicuda: CudaDriver.o ST_Intersect.o CudaJoinInterface.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o 
+	$(CC) -O2 $(LFLAGS) -o gpu CudaDriver.o ST_Intersect.o CudaJoinInterface.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB) $(LIBRA) -lcudart -L/usr/local/cuda/lib64
+#	$(CC) -O2 $(LFLAGS) -o gpu CudaDriver.o ST_Intersect.o CudaJoinInterface.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB) $(LIBRA) -lcudart -L/sw/cuda/7.0/lib64
+
+#spatialJoin3: spatialJoin3.cu
+#	nvcc -w -dc -arch=sm_35 spatialJoin3.cu
+#	nvcc  spatialJoin3.o -w -rdc=true -arch=sm_35 -o spatialJoin3
+
+#ST_Intersect.o: ST_Intersect.cu
+#	nvcc -w -dc -arch=sm_35 ST_Intersect.cu
+#    nvcc -w -rdc=true -arch=sm_35 -o ST_Intersect
+
+refineLB: MPILoadBalancer.o dynamicMPILoadCalculator.o staticMPILoadCalculator.o fileWriter.o GeomPrintReducer.o pointNodeParser.o fileRead.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o refineLB MPILoadBalancer.o dynamicMPILoadCalculator.o staticMPILoadCalculator.o fileWriter.o pointNodeParser.o GeomPrintReducer.o  fileRead.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB)
+
+MPILoadBalancer.o: MPILoadBalancer.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) MPILoadBalancer.cpp
+
+dlbLoadCalc: dynamicMPILoadCalculator.o fileWriter.o GeomPrintReducer.o pointNodeParser.o AllObjectsCommBuffer_DerivedType.o  MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o dlbLoadCalc dynamicMPILoadCalculator.o fileWriter.o pointNodeParser.o GeomPrintReducer.o AllObjectsCollectiveAttr.o AllObjectsCommBuffer_DerivedType.o MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB)
+
+slbLoadCalc: MPILoadBalancer.o staticMPILoadCalculator.o fileRead.o fileWriter.o GeomPrintReducer.o pointNodeParser.o fileRead.o GeomJoinReducer.o uniformGrid.o  spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o 
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o slbLoadCalc MPILoadBalancer.o staticMPILoadCalculator.o fileRead.o fileWriter.o pointNodeParser.o GeomPrintReducer.o GeomJoinReducer.o uniformGrid.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o  $(LIBB)
+
+dynamicMPILoadCalculator.o: dynamicMPILoadCalculator.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) dynamicMPILoadCalculator.cpp
+
+staticMPILoadCalculator.o: staticMPILoadCalculator.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) staticMPILoadCalculator.cpp
+
+lbDynamic: adlb_mpigis_dyn.o AllObjectsCollectiveAttr.o fileWriter.o GeomPrintReducer.o pointNodeParser.o AllObjectsCommBuffer_DerivedType.o  MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o lbDynamic adlb_mpigis_dyn.o fileWriter.o pointNodeParser.o GeomPrintReducer.o AllObjectsCollectiveAttr.o AllObjectsCommBuffer_DerivedType.o MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB)
+
+lbStatic: adlb_mpigis_static.o CudaJoinInterface.o ST_Intersect.o fileRead.o CollectiveAttributes.o uniformGrid.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o lbStatic adlb_mpigis_static.o CudaJoinInterface.o ST_Intersect.o fileRead.o CollectiveAttributes.o uniformGrid.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB) $(LIBRA) -lcudart -L/usr/local/cuda/lib64
+
+adlb_mpigis_static.o : adlb_mpigis_static.cpp
+	$(CC) $(CFLAGS) adlb_mpigis_static.cpp
+
+adlb_mpigis_dyn.o: adlb_mpigis_dyn.cpp
+	$(CC) $(CFLAGS) adlb_mpigis_dyn.cpp
+
+timing: bench_commtime.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O2 $(LFLAGS) -o timing bench_commtime.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB) $(LIBRA)
+
+grid: CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o driver.o
+	$(CC) -O2 $(LFLAGS) -o grid CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o mrdriver.o EnvelopeReducer.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o driver.o $(LIBB) $(LIBRA)
+	
+types: spatialTypes.o testMPITypes.o
+	$(CC) $(LFLAGS) -o types spatialTypes.o testMPITypes.o $(LIBB) $(LIBRA)
+	 	
+io: sequentialIO.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o
+	$(CC) $(LFLAGS) -o io sequentialIO.o overlay.o join.o index.o WKTParser.o FileSplits.o config.o $(LIBB) $(LIBRA)
+
+splitIO: sequentialIO.o SeqFilePartitioner.o road_network_parser.o FileSplits.o
+	$(GCC) $(DEBUG) $(LFLAGS) -o splitIO sequentialIO.o SeqFilePartitioner.o road_network_parser.o FileSplits.o $(LIBB)
+
+sequentialIO.o: sequentialIO.cpp
+	$(GCC)  $(DEBUG) $(CFLAGS) sequentialIO.cpp
+
+ST_Intersect.o: ST_Intersect.cu
+	nvcc -w -m64 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_61,code=sm_61 -o ST_Intersect.o -c -w ST_Intersect.cu	
+#	nvcc -w -m64 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_35,code=sm_35 -o ST_Intersect.o -c -w ST_Intersect.cu	
+	
+CudaDriver.o: CudaDriver.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) CudaDriver.cpp
+	
+CudaJoinInterface.o: CudaJoinInterface.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) CudaJoinInterface.cpp
+	
+bench_commtime.o: bench_commtime.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) bench_commtime.cpp
+
+SingleLayerMBRBuffer.o: SingleLayerMBRBuffer.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) SingleLayerMBRBuffer.cpp
+
+SingleLayerGeomBufferMgr.o: SingleLayerGeomBufferMgr.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) SingleLayerGeomBufferMgr.cpp
+	
+SeqFilePartitioner.o: SeqFilePartitioner.cpp
+	$(GCC) $(DEBUG) $(CFLAGS) SeqFilePartitioner.cpp
+	
+mpioverlay: ShapeFilePartitioner.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o overlaydriver.o	
+	$(CC) $(LFLAGS) -o mpiover overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o overlaydriver.o $(LIBB) $(LIBRA)
+
+mpiio: spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o driver.o
+	$(CC) -O2 $(LFLAGS) -o mpi spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinTaskMap.o driver.o $(LIBB) $(LIBRA)
+
+EnvelopeReducer.o: EnvelopeReducer.cpp
+	$(CC) $(CFLAGS) EnvelopeReducer.cpp
+	
+GeomJoinReducer.o: GeomJoinReducer.cpp
+	$(CC) $(CFLAGS) GeomJoinReducer.cpp
+			
+testMPITypes.o: testMPITypes.cpp
+	$(CC) -fpermissive $(CFLAGS) testMPITypes.cpp
+	
+spatialTypes.o: spatialTypes.cpp
+	$(CC) -fpermissive $(CFLAGS) spatialTypes.cpp
+
+util.o: util.cpp
+	$(CC) $(CFLAGS) util.cpp
+	
+road_network_parser.o: road_network_parser.cpp
+	$(CC) $(DEBUG) $(CFLAGS) road_network_parser.cpp
+
+mrdriver.o: mrdriver.cpp
+	$(CC) $(CFLAGS) mrdriver.cpp
+
+CollectiveAttributes.o: CollectiveAttributes.cpp
+	$(CC) $(CFLAGS) CollectiveAttributes.cpp
+
+bufferRoadNetwork.o: bufferRoadNetwork.cpp
+	$(CC) $(CFLAGS) bufferRoadNetwork.cpp
+				
+bufferManagerGeom.o: bufferManagerGeom.cpp
+	$(CC) $(CFLAGS) bufferManagerGeom.cpp
+
+bufferManagerMBR.o: bufferManagerMBR.cpp
+	$(CC) $(CFLAGS) bufferManagerMBR.cpp
+	
+overlay.o: overlay.cpp
+	$(CC) $(CFLAGS) overlay.cpp
+	
+join.o: join.cpp
+	$(CC) $(CFLAGS) join.cpp
+
+index.o: index.cpp
+	$(CC) $(CFLAGS) index.cpp
+	
+FileSplits.o: FileSplits.cpp
+	$(CC) $(CFLAGS) FileSplits.cpp
+	
+MPI_File_Partitioner.o: MPI_File_Partitioner.cpp 
+	$(CC) $(CFLAGS) MPI_File_Partitioner.cpp
+
+WKTParser.o: WKTParser.cpp 
+	$(CC) $(CFLAGS) WKTParser.cpp
+	
+ShapeFilePartitioner.o: ShapeFilePartitioner.cpp 
+	$(CC) $(CFLAGS) ShapeFilePartitioner.cpp
+	
+config.o: config.cpp 
+	$(CC) $(CFLAGS) config.cpp
+	
+uniformGrid.o: uniformGrid.cpp 
+	$(CC) $(CFLAGS) uniformGrid.cpp
+
+roundRobinStrategy.o: roundRobinStrategy.cpp	
+	$(CC) $(CFLAGS) roundRobinStrategy.cpp	
+
+RtreeStructure.o: RtreeStructure.cpp
+	$(CC) $(CFLAGS) RtreeStructure.cpp
+	
+driver.o: driver.cpp
+	$(CC) $(CFLAGS) driver.cpp
+
+overlaydriver.o: overlaydriver.cpp
+	$(CC) $(CFLAGS) overlaydriver.cpp
+
+fileRead.o: fileRead.cpp
+	$(CC) $(CFLAGS) fileRead.cpp
+	
+clean:
+	rm *o gpu
+ 

@@ -1,0 +1,1 @@
+mpirun -np 8 ./mpiio 8 /Users/satishpuri/Desktop/spring_16/postdoc/mpiio/datasets/sports /Users/satishpuri/Desktop/spring_16/postdoc/mpiio/datasets/osm_data/cemetery
