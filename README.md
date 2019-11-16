@@ -1,6 +1,4 @@
-MPI-GIS software
-MPI-GIS uses MPI to distribute the geospatial intersection computation among MPI processes running on 
-multiple compute nodes in a cluster for geospatial join and overlay on a cluster of compute nodes.
+MPI-GIS software uses Message Passing Interface and MPI-IO to read and distribute the geospatial intersection computation among MPI processes running on multiple compute nodes in a cluster for geospatial join and overlay on a cluster of compute nodes.
 
 This code is based on the following two papers:
 
