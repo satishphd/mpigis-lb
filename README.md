@@ -7,3 +7,13 @@ MPI-Vector-IO: Parallel I/O and Partitioning for Geospatial Vector Data. ICPP 20
 
 2) Satish Puri, Sushil K. Prasad:
 A Parallel Algorithm for Clipping Polygons with Improved Bounds and a Distributed Overlay Processing System Using MPI. CCGRID 2015: 576-585
+
+
+Usage: test_mpi-vector-io.cpp
+
+Parser Interface (Parser.h)
+	virtual list<Geometry*>* parse(const FileSplits &split) = 0;
+
+FileSplits is defined as a list of "string". It represents a chunk of file, that an MPI process gets after file partioning using MPI-IO.
+
+Example: WKTParser class implements Parser Interface to return a list of Geometry instances given a list of string representation of co-ordinates
