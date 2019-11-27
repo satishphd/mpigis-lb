@@ -8,8 +8,9 @@ MPI-Vector-IO: Parallel I/O and Partitioning for Geospatial Vector Data. ICPP 20
 2) Satish Puri, Sushil K. Prasad:
 A Parallel Algorithm for Clipping Polygons with Improved Bounds and a Distributed Overlay Processing System Using MPI. CCGRID 2015: 576-585
 
+3) Puri, S. (2019). SpatialMPI: Message Passing Interface for GIS Applications. The Geographic Information Science & Technology Body of Knowledge (2nd Quarter 2019 Edition), John P. Wilson (Ed.). DOI: 10.22224/gistbok/2019.2.6
 
-Usage: test_mpi-vector-io.cpp
+Example to show how to use: test_mpi-vector-io.cpp
 
 Parser Interface (Parser.h)
 	virtual list<Geometry*>* parse(const FileSplits &split) = 0;
