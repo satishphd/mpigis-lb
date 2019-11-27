@@ -1,0 +1,8 @@
+#Test code for Spatial Aware MPI is present in testSpatialTypes.cpp
+
+#MPI-GIS-II has dependency on geos opensource library.
+#Need to specify the library path and include directory path for geos.
+
+#MPI commands (on my Mac machine with OpenMPI):
+mpicxx -o test testSpatialTypes.cpp SpatialMPI.a -I/usr/local/Cellar/geos/3.5.0/include -L/usr/local/Cellar/geos/3.5.0/lib -lgeos
+mpirun -np 2 ./test
