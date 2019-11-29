@@ -39,6 +39,18 @@ int main(int argc, char **argv)
     
     list<Geometry*> *layer2Geoms = parser->parse(*splitPair.second);
     
+    // Filter step: Spatial partitioning into uniform/adaptive grid cells.
+    Grid grid (numPartitions, universe);
+    grid.populateGridCells(L1Geomsid, L2Geomsid);
+
+    //Generate a mapping from MPI process id to list of cells. Default is block-cyclic.
+    
+    // Perform MPI all-to-all communication to exchange geometries. Each MPI process gets a list of (cellId, geoms) pairs. 
+    // Geometries are grouped by cell.
+    
+    // Refine step: Spatial join computation in each cell.
+    int refine(int cell, list<Geometry> L1cell, list<Geometry> L2cell);
+    
     MPI_Finalize();
 }
 ```
