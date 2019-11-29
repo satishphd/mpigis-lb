@@ -8,37 +8,8 @@ void SpatialMPI :: initSpatialMPI()
 
 void SpatialMPI ::initOperators()
 { 
-//    MPI_User_function* func = &mbrUnion;
     MPI_Op_create(mbrUnion, 0, &MPI_UNION);
 }
-
-/*
-Envelope SpatialTypes :: reduceByUnion(Envelope *env) 
-{
-
-   //createOperatorType();
-    
-  Envelope recv;
-   
-   //MPI_Reduce(env, &recv, 1, mbrtype, boxUnion, 0, MPI_COMM_WORLD);
-   
-  MPI_Op boxUnion;
-  MPI_Datatype mbrtype;
-  
-  MPI_Type_contiguous(4, MPI_DOUBLE, &mbrtype);
-  MPI_Type_commit(&mbrtype);
-  
-  MPI_Op_create(mbrUnion, 0, &boxUnion);
-  
-  //MPI_Reduce(env, &recv, 1, mbrtype, boxUnion, 0, MPI_COMM_WORLD);
-  // int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
-  //                   MPI_Datatype datatype, MPI_Op op, MPI_Comm comm)
-  
-  MPI_Allreduce(env, &recv, 1, mbrtype, boxUnion, MPI_COMM_WORLD);
-  
-  return recv;
-}
-*/
 
  // for multiple MBRs    
  void SpatialMPI :: mbrUnion(void *envIn, void *envInOut, int *len, MPI_Datatype *type) 
