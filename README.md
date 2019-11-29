@@ -1,6 +1,6 @@
 MPI-GIS software uses Message Passing Interface and MPI-IO to read and distribute the geospatial intersection computation among MPI processes running on multiple compute nodes in a cluster for geospatial join and overlay on a cluster of compute nodes.
 
-This code is based on the following two papers:
+This code is based on the following three papers:
 
 1) Satish Puri, Anmol Paudel, Sushil K. Prasad:
 MPI-Vector-IO: Parallel I/O and Partitioning for Geospatial Vector Data. ICPP 2018: 13:1-13:11
@@ -41,4 +41,12 @@ int main(int argc, char **argv)
     
     MPI_Finalize();
 }
+```
+```
+Envelope recv;
+Envelope env(1,2,3,4);    
+MPI_Allreduce(env, &recv, 1, MPI_RECT, MPI_UNION, MPI_COMM_WORLD);
+
+Rect in_rect(1,2,3,4);  
+MPI_Bcast(&in_rect, 1, MPI_RECT, 0, MPI_COMM_WORLD);
 ```
