@@ -11,10 +11,34 @@ A Parallel Algorithm for Clipping Polygons with Improved Bounds and a Distribute
 3) Puri, S. (2019). SpatialMPI: Message Passing Interface for GIS Applications. The Geographic Information Science & Technology Body of Knowledge (2nd Quarter 2019 Edition), John P. Wilson (Ed.). DOI: 10.22224/gistbok/2019.2.6
 
 Example to show how to use: test_mpi-vector-io.cpp
-
+```
 Parser Interface (Parser.h)
 	virtual list<Geometry*>* parse(const FileSplits &split) = 0;
-
+```
 FileSplits is defined as a list of "string". It represents a chunk of file, that an MPI process gets after file partioning using MPI-IO.
 
 Example: WKTParser class implements Parser Interface to return a list of Geometry instances given a list of string representation of co-ordinates
+
+```
+int main(int argc, char **argv) 
+{	
+    Config args(argc, argv); 
+    
+    args.initMPI(argc, argv);
+    
+    FilePartitioner *partitioner = new MPI_File_Partitioner();
+	
+    partitioner->initialize(args);
+    
+    pair<FileSplits*, FileSplits*> splitPair = partitioner->partition();
+    
+    Parser *parser = new WKTParser();
+    
+    list<Geometry*> *layer1Geoms = parser->parse(*splitPair.first);
+    cout<<layer1Geoms->size()<<endl;
+    
+    list<Geometry*> *layer2Geoms = parser->parse(*splitPair.second);
+    
+    MPI_Finalize();
+}
+```
