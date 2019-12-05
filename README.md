@@ -62,3 +62,10 @@ MPI_Allreduce(env, &recv, 1, MPI_RECT, MPI_UNION, MPI_COMM_WORLD);
 Rect in_rect(1,2,3,4);  
 MPI_Bcast(&in_rect, 1, MPI_RECT, 0, MPI_COMM_WORLD);
 ```
+
+```
+Build Instructions: make
+Run: mpirun -np #processes ./mpiio #filePartitions datasets/sports datasets/cemetery 
+Download datasets from http://spatialhadoop.cs.umn.edu/datasets.html and https://star.cs.ucr.edu/
+Library dependency on GEOS to perform computational geometry algorithms (https://trac.osgeo.org/geos/)
+```
