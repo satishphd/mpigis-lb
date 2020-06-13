@@ -1,4 +1,5 @@
 #include "index/index.h"
+#include "filter/filter.h"
 
 map<int, list<Geometry*>* >* Index :: partitionGeomsAmongGridCells(int aNumCells, list<Geometry*> *shapes)
 {
@@ -216,6 +217,7 @@ map<Envelope*, vector<void *> >* Index :: query(vector<Envelope*> *layer2)
    return overlapMap;
 }
 
+/* This is the one for SigSpatial 2020 */
 map<Geometry*, vector<void *> >* Index :: query(list<Geometry*> *layer2) 
 {   
     map<Geometry*, vector<void *> >* overlapMap = new map<Geometry*, vector<void *> >();
@@ -236,8 +238,56 @@ map<Geometry*, vector<void *> >* Index :: query(list<Geometry*> *layer2)
          overlapMap->insert(pair<Geometry*, vector<void *> >(poly1, results));
       }
     }
-  // cout<<"In Index query, "<<count<<endl;
+    //cout<<"In Index query, "<<count<<endl;
    return overlapMap;
+}
+
+int Index :: filterQuery(list<Geometry*> *layer2) 
+{   
+    map<Geometry*, vector<void *> >* overlapMap = new map<Geometry*, vector<void *> >();
+    int count = 0;
+    /* what is the count after polysketch filter has been applied */
+    int filteredCount = 0;
+    
+    for (list<Geometry*>::iterator layer2it = layer2->begin() ; layer2it != layer2->end(); ++layer2it) {
+      
+      Geometry* poly1 = *layer2it;
+      //int *id = (int *)poly1->getUserData();
+       
+      std::vector<void *> results;
+      
+      //cout<<"In query"<<endl;
+      
+      index->query(poly1->getEnvelopeInternal(), results);
+            
+      if(results.empty() == false) {
+         count += results.size();
+         overlapMap->insert(pair<Geometry*, vector<void *> >(poly1, results));
+      }
+      
+      /* PolySketch Filter */
+      if(results.empty() == false) {
+         
+         Filter sketchFilter;
+         list<Tile*>* xTiles = sketchFilter.getTiles(poly1);
+         
+         for(vector<void *>::iterator it = results.begin() ; it != results.end(); ++it) {
+             void *poly2Ptr = *it;
+             
+             Geometry* poly2 = (Geometry*)poly2Ptr;
+             
+             int tileOverlaps = sketchFilter.test(xTiles, poly2);
+
+             if(tileOverlaps > 0)
+                filteredCount++;             
+         }
+      }
+    }
+    //printf(" [%d  %d] \n", count, filteredCount);
+    //fflush(stdout);
+    //cout<<"In Index query, "<<count<<endl;
+    return filteredCount;
+    //return (count - filteredCount);
 }
 
 /* called by binary MPI file I/O program*/
