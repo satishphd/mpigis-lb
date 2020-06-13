@@ -38,7 +38,7 @@ void  MRDriver :: createReducers(Config *args, map<int, Cell*> *shapesInCell)
 // This is for printing purposes
 void  MRDriver :: createReducers(Config *args, map<int, list<Geometry*>* >* geomsByCellMap, list<Geometry*>* queries)
  { 
-     int cellCount = args->numPartitions;
+   /*  int cellCount = args->numPartitions;
      
      Reducer *reducer = new GeomPrintReducer();
      
@@ -53,7 +53,7 @@ void  MRDriver :: createReducers(Config *args, map<int, list<Geometry*>* >* geom
   
            totalOutput += output;
         }
-     }
+     } */
      //verify(totalOutput);
  } 
 
@@ -142,7 +142,7 @@ void  MRDriver :: createReducers(Config *args, map<int, list<Geometry*>* >* geom
      map<int,vector<GeomInfo*>* > *layer1Map = cellPairMap->first;
      map<int,vector<GeomInfo*>* > *layer2Map = cellPairMap->second;
      
-     Reducer *reducer = new EnvelopeReducer();
+     /*Reducer *reducer = new EnvelopeReducer();
      
      int totalOutput = 0;
      
@@ -152,7 +152,7 @@ void  MRDriver :: createReducers(Config *args, map<int, list<Geometry*>* >* geom
            cout<< " ["<<cellId <<"] : "<<output<<endl;
            totalOutput += output;
         }
-     }
+     } */
     // verify(totalOutput);
     
  }
