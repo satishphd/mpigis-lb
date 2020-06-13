@@ -6,8 +6,9 @@ CC = mpicxx
 LIBB = -L/usr/local/lib -lgeos
 #CFLAGS = -O2 -Wall -c -std=c++0x -I/sw/geosoft/geos/include
 CFLAGS = -O0 -Wall -c -std=c++0x -I/usr/local/include
-LIBRA = ../lib/libshp.a ../lib/librtree.a
-DEBUG = -g
+#LIBRA = ../lib/libshp.a ../lib/librtree.a
+LIBRA =
+DEBUG =
 #CFLAGS = -Wall -c -std=c++0x -I/usr/local/Cellar/geos/3.5.0/include
 LFLAGS = -Wall
 
@@ -35,8 +36,8 @@ dynamicMPILoadCalculator.o: dynamicMPILoadCalculator.cpp
 staticMPILoadCalculator.o: staticMPILoadCalculator.cpp
 	$(CC)  $(DEBUG) $(CFLAGS) staticMPILoadCalculator.cpp
 
-lbDynamic: adlb_mpigis_dyn.o AllObjectsCollectiveAttr.o fileWriter.o GeomPrintReducer.o pointNodeParser.o AllObjectsCommBuffer_DerivedType.o  MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
-	$(CC) -O0 $(DEBUG) $(LFLAGS) -o lbDynamic adlb_mpigis_dyn.o fileWriter.o pointNodeParser.o GeomPrintReducer.o AllObjectsCollectiveAttr.o AllObjectsCommBuffer_DerivedType.o MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB)
+lbDynamic: adlb_mpigis_dyn.o filter.o AllObjectsCollectiveAttr.o fileWriter.o GeomPrintReducer.o pointNodeParser.o AllObjectsCommBuffer_DerivedType.o  MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o
+	$(CC) -O0 $(DEBUG) $(LFLAGS) -o lbDynamic adlb_mpigis_dyn.o filter.o fileWriter.o pointNodeParser.o GeomPrintReducer.o AllObjectsCollectiveAttr.o AllObjectsCommBuffer_DerivedType.o MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o $(LIBB)
 
 lbStatic: AllObjectsCollectiveAttr.o fileWriter.o GeomPrintReducer.o pointNodeParser.o AllObjectsCommBuffer_DerivedType.o  MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o ShapeFilePartitioner.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o adlb_mpigis_static.o
 	$(CC) -O0 $(DEBUG) $(LFLAGS) -o lbStatic  fileWriter.o pointNodeParser.o GeomPrintReducer.o AllObjectsCollectiveAttr.o AllObjectsCommBuffer_DerivedType.o MPI_LargeFile_Partitioner.o MultiRoundOneLayerBufferMBR.o MultiRoundOneLayerGeomBufferMgr.o fileRead.o SingleLayerMBRBuffer.o SingleLayerGeomBufferMgr.o CollectiveAttributes.o bufferRoadNetwork.o bufferManagerGeom.o GeomJoinReducer.o uniformGrid.o bufferManagerMBR.o spatialTypes.o util.o road_network_parser.o overlay.o join.o index.o MPI_File_Partitioner.o WKTParser.o FileSplits.o config.o roundRobinStrategy.o adlb_mpigis_static.o $(LIBB)
@@ -99,6 +100,9 @@ largeIO: SeqFilePartitioner.o fileWriter.o road_network_parser.o FileSplits.o
 splitIO: sequentialIO.o SeqFilePartitioner.o road_network_parser.o FileSplits.o
 	$(CC) $(DEBUG) $(LFLAGS) -o splitIO sequentialIO.o SeqFilePartitioner.o road_network_parser.o FileSplits.o $(LIBB)
 
+filter.o: filter.cpp
+	$(CC)  $(DEBUG) $(CFLAGS) filter.cpp
+	
 loadCalculationByIndex.o: loadCalculationByIndex.cpp
 	$(CC)  $(DEBUG) $(CFLAGS) loadCalculationByIndex.cpp
 	
@@ -187,10 +191,10 @@ testSequentialDriver.o: testSequentialDriver.cpp
 	$(CC) $(CFLAGS) testSequentialDriver.cpp
 		
 join.o: join.cpp
-	$(CC) $(CFLAGS) join.cpp
+	$(CC) $(CFLAGS) $(DEBUG) join.cpp
 
 index.o: index.cpp
-	$(CC) $(CFLAGS) index.cpp
+	$(CC) $(CFLAGS) $(DEBUG) index.cpp
 	
 FileSplits.o: FileSplits.cpp
 	$(CC) $(CFLAGS) $(DEBUG) FileSplits.cpp
