@@ -18,7 +18,7 @@
     list<pair<Envelope*, Envelope*> > *pairs = nullptr;
     
     if(intersectionMap != nullptr)
-        pairs = spatialJoin.join(intersectionMap);
+        spatialJoin.join(intersectionMap);
      
     if(pairs!= nullptr && !pairs->empty()) 
       return pairs->size();
