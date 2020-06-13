@@ -32,6 +32,8 @@ class Join
 
   void joinGeomEnv(map<Geometry*, vector<void *> >*GeomToEnvsMap);
   
+  list<pair<Geometry*, Geometry*> >* intersection(map<Geometry*, vector<void *> >* intersectionMap);
+  
   list<pair<Geometry*, Geometry*> >* join(map<Geometry*, vector<void *> >* intersectionMap);
   
   long join(map<Envelope*, vector<void *> >* intersectionMap);
