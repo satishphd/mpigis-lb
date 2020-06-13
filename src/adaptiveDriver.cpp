@@ -344,7 +344,7 @@ int main(int argc, char **argv)
 }
 
 
-
+/*
 int main1(int argc, char **argv)
 {	
 
@@ -428,15 +428,17 @@ int main1(int argc, char **argv)
     
     Join spatialJoin;
 
-    list<pair<Geometry*, Geometry*> > *pairs = spatialJoin.join(intersectionMap);
+    //list<pair<Geometry*, Geometry*> > *pairs = 
     
-    /*Overlay overlay;
+    spatialJoin.join(intersectionMap);
+    
+    //Overlay overlay;
     list<pair<Geometry*, Geometry*> > *pairs = overlay.overlay(intersectionMap);	
-    */
+    
 	
     //cout<<args->rank<<", Number of overlapping pairs "<<pairs->size()<<endl;
 		
-	/*Grid *grid = new UniformGrid(16);
+	//Grid *grid = new UniformGrid(16);
 	
     grid->setDimension(1,2,3,4);
     
@@ -445,7 +447,7 @@ int main1(int argc, char **argv)
 	grid->populateGridCells(*layer2Geoms, false);
 
 	//shuffleExchange();
-	*/
+	
 	partitioner->finalize();
 	
 	//delete parser;
@@ -459,3 +461,4 @@ int main1(int argc, char **argv)
 
 	return 0;
 }
+*/
