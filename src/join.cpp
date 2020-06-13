@@ -95,6 +95,7 @@ long Join :: join(map<Envelope*, vector<void *> >* intersectionMap)
    return joinPairs;
 }
 
+
 list<pair<Geometry*, Geometry*> >* Join :: join(map<Geometry*, vector<void *> >* intersectionMap)
 {
    int counter = 0;
@@ -128,19 +129,56 @@ list<pair<Geometry*, Geometry*> >* Join :: join(map<Geometry*, vector<void *> >*
                    
                    joinPairs->push_back(pair<Geometry*, Geometry*>(poly1, poly2));
                  
+                   Geometry *output = poly1->intersection(poly2);
+                 
                    //cout<<poly1->getEnvelopeInternal()->toString()<<endl<<endl<<poly2->getEnvelopeInternal()->toString()<<endl<<endl;
                    //cerr<<" "<<poly2->getGeometryType()<<" "<<poly2->getNumPoints()<<endl;
                   }
               }
-              // catch (const IllegalArgumentException& ill) {
-// 				
-// 			  }
               catch(exception ex) {
                 //cerr<< " Intersects Error ";
               } 
           }
-    
           pgf.destroy(pgpoly1);
+   }
+   return joinPairs;
+} 
+
+list<pair<Geometry*, Geometry*> >* Join :: intersection(map<Geometry*, vector<void *> >* intersectionMap)
+{
+   int counter = 0;
+   int inner = 0;
+   list<pair<Geometry*, Geometry*> >* joinPairs = new list<pair<Geometry*, Geometry*> >();   
+ 
+   map<Geometry*, vector<void *> >::iterator itOuter;
+       
+   for (itOuter = intersectionMap->begin(); itOuter != intersectionMap->end(); ++itOuter) {
+           // std::cout << it->first << " => " << it->second->size() << '\n';
+ 	   inner = 0;
+       Geometry *poly1 = itOuter->first;
+     
+       vector<void *> layer2 = itOuter->second;
+
+       for(vector<void *>::iterator it = layer2.begin() ; it != layer2.end(); ++it) {
+             void *poly2Ptr = *it;
+             
+             Geometry* poly2 = (Geometry*)poly2Ptr;
+             //cerr<<poly2->getGeometryType()<<": "<<poly2->getNumPoints()<<endl;
+             //cerr<<poly2->toString()<<endl<<endl<<endl;
+             try {
+                if(poly2!= nullptr && !poly2->isEmpty()) { 
+                   
+                   Geometry *output = poly1->intersection(poly2);
+                   //joinPairs->push_back(pair<Geometry*, Geometry*>(poly1, poly2));
+                 
+                   //cout<<poly1->getEnvelopeInternal()->toString()<<endl<<endl<<poly2->getEnvelopeInternal()->toString()<<endl<<endl;
+                   //cerr<<" "<<poly2->getGeometryType()<<" "<<poly2->getNumPoints()<<endl;
+                  }
+              }
+              catch(exception ex) {
+                //cerr<< " Intersects Error ";
+              } 
+          }
    }
    return joinPairs;
 }
