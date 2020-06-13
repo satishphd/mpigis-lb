@@ -49,9 +49,19 @@ void slave(string l1Folder, string l2Folder);
 int processRefinement(char *fileLayer1, char *fileLayer2);
 int masterWithOutLoadCalc(int numFiles);
 
+//  Lakes    => /home/shared/data/lakes_indexed/lakes/1024Parts
+//  Sports   => ~/everest_files/mpigis/indexed_data/sports/1024Parts/
 
-// mpirun -np 16 ./lbDynamic 1024 ~/mpigis/indexed_data/sports/1024Parts/ ~/mpigis/indexed_data/cemetery/1024Parts/
+//  Indexed data => /users/personnel/satish/everest_files/mpigis
+
+// mpirun -np 16 ./lbDynamic 1024 ~/everest_files/mpigis/indexed_data/sports/1024Parts/ ~/everest_files/mpigis/indexed_data/cemetery/1024Parts/
 // make lbDynamic 
+
+/*
+ * Roads vs Rivers
+ * mpirun -np 32 ./lbDynamic 8192 /home/shared/data/roads25GB_indexed/8192Parts/ /home/shared/data/sports/sports/8192Parts/
+ */
+ 
 int main(int argc, char *argv[])
 {
 	int         myrank;
@@ -92,6 +102,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+/*
 int processRefinement(char *fileLayer1, char *fileLayer2)
 {   
     	FileReader fileReader;
@@ -116,18 +127,101 @@ int processRefinement(char *fileLayer1, char *fileLayer2)
 	    Index index;
         index.createRTree(geomsLayer1);
 
-    	//cerr<<"P"<<conf.rank<<" "<<hostname<<", Layer2 File #"<<(fileNum)<<", geoms, "<<geomsLayer2->size()<<endl;	
-    	   
+    	//cout<<"P"<<conf.rank<<" "<<hostname<<", Layer2 File #"<<(fileNum)<<", geoms, "<<geomsLayer2->size()<<endl;	
+    	//cout<<" #Geoms "<<geomsLayer2->size()<<endl;	   
 	    map<Geometry*, vector<void *> >*joinResult = index.query(geomsLayer2);
+        //cout<<pairs->size()<<" ;  ";
     
         Join joinObj;
     
-        list<pair<Geometry*, Geometry*> >*pairs = joinObj.join(joinResult);
+        //list<pair<Geometry*, Geometry*> >*pairs = joinObj.join(joinResult);
         
         //cout<<"Output Pairs Task "<<fileLayer1<<": "<<pairs->size()<<endl;
+        // if(pairs->size() > 0)
+        //   cout<<pairs->size()<<" ;  ";
+       
+        return 0;
+        //return pairs->size();
         
+} */
+   	
+// standard and classical method of filter and refinement   		
+int processRefinement(char *fileLayer1, list<Geometry*> *geomsLayer2)
+{   
+    	FileReader fileReader;
+    	list<Geometry*> *geomsLayer1 = fileReader.readWKTFile(fileLayer1, NULL);
+    	
+    	if(geomsLayer1 == NULL || geomsLayer1->size() == 0) 
+    	{
+    	   return 0;
+    	}
+	    
+	    if(geomsLayer2 == NULL)
+	    {
+    	   cerr<<"Error: Empty Layer 2 file "<<endl; 
+    	   return 0;
+        }
+        
+	    Index index;
+        index.createRTree(geomsLayer1);
+
+    	//cout<<"P"<<conf.rank<<" "<<hostname<<", Layer2 File #"<<(fileNum)<<", geoms, "<<geomsLayer2->size()<<endl;	
+    	//cout<<" #Geoms "<<geomsLayer2->size()<<endl;	   
+	    map<Geometry*, vector<void *> >*joinResult = index.query(geomsLayer2);
+        
+        Join joinObj;
+    
+        //list<pair<Geometry*, Geometry*> >*pairs = joinObj.join(joinResult);
+        
+        list<pair<Geometry*, Geometry*> >*pairs = joinObj.intersection(joinResult);
+        
+        //cout<<"Output Pairs Task "<<fileLayer1<<": "<<pairs->size()<<endl;
+        // if(pairs->size() > 0)
+        //   cout<<pairs->size()<<" ;  ";
+       
         return pairs->size();
         
+}   		
+   		
+int polySketchRefinement(char *fileLayer1, list<Geometry*> *geomsLayer2)
+{   
+    	FileReader fileReader;
+    	list<Geometry*> *geomsLayer1 = fileReader.readWKTFile(fileLayer1, NULL);
+    	
+    	if(geomsLayer1 == NULL) 
+    	{
+    	   //cerr<<"Error: Empty Layer 1 file "<<fileLayer1<<endl;
+    	   return 0;
+    	}
+	    
+	    //cerr<<"Layer1 File #"<<fileLayer1<<", geoms, "<<geomsLayer1->size()<<endl;
+    	
+	    if(geomsLayer2 == NULL)
+	    {
+    	   cerr<<"Error: Empty Layer 2 file "<<endl; 
+    	   return 0;
+        }
+        
+	    Index index;
+        index.createRTree(geomsLayer1);
+
+    	//cout<<"P"<<conf.rank<<" "<<hostname<<", Layer2 File #"<<(fileNum)<<", geoms, "<<geomsLayer2->size()<<endl;	
+    	//cout<<" #Geoms "<<geomsLayer2->size()<<endl;	   
+	    //map<Geometry*, vector<void *> >*joinResult = index.query(geomsLayer2);
+        //cout<<pairs->size()<<" ;  ";
+    
+        int filteredCount = index.filterQuery(geomsLayer2);
+        //printf(" %d ", difference);
+        
+        //Join joinObj;
+    
+        //list<pair<Geometry*, Geometry*> >*pairs = joinObj.join(joinResult);
+        
+        //cout<<"Output Pairs Task "<<fileLayer1<<": "<<pairs->size()<<endl;
+        // if(pairs->size() > 0)
+        //   cout<<pairs->size()<<" ;  ";
+       
+        return filteredCount;
 }
 
 void slave(string l1Folder, string l2Folder)
@@ -139,6 +233,11 @@ void slave(string l1Folder, string l2Folder)
   //string l2Input_folder = "/home/satish/mpigis/indexed_data/sports/64Parts/";
   
   //string l2Input_folder = "/home/satish/mpigis/indexed_data/sports/1024Parts/";
+  
+  char *fileLayer2 = "/home/shared/data/rivers/rivers.tsv";
+    	
+  FileReader fileReader;
+  list<Geometry*> *geomsLayer2 = fileReader.readSampleFile(fileLayer2, NULL);
   
   int                 work;
   MPI_Status          status;
@@ -157,15 +256,55 @@ void slave(string l1Folder, string l2Folder)
         string strLayer2 = l2Folder + to_string(work);
         char *layer2 = const_cast<char*>(strLayer2.c_str());
         
-        int joinResults = processRefinement(layer1, layer2);
+        int joinResults = processRefinement(layer1, geomsLayer2);
+        
+        //int joinResults = polySketchRefinement(layer1, geomsLayer2);
+        
+        //cout<<" "<<work<<" ";
+        // printf(" %d ", work);
+        // fflush(stdout);
         
 		MPI_Send(&joinResults, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
   }
 }
 
+/*
+void slave(string l1Folder, string l2Folder)
+{
+  //string l1Input_folder = "/home/satish/mpigis/indexed_data/cemetery/64Parts/";
+  //string l1Input_folder = "/home/satish/mpigis/indexed_data/roads25GB/1024Parts/";
+  //string l2Input_folder = "/home/satish/mpigis/indexed_data/cemetery/64Parts/";
+  //string l2Input_folder = "/home/satish/mpigis/indexed_data/cemetery/64Parts/";
+  //string l2Input_folder = "/home/satish/mpigis/indexed_data/sports/64Parts/";
+  
+  //string l2Input_folder = "/home/satish/mpigis/indexed_data/sports/1024Parts/";
+  
+  int                 work;
+  MPI_Status          status;
+
+  for (;;) {
+		MPI_Recv(&work, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    
+	 // Check the tag of the received message.
+	 
+		if (status.MPI_TAG == DIETAG) {
+			return;
+		}
+        string strLayer1 = l1Folder + to_string(work);
+        char *layer1 = const_cast<char*>(strLayer1.c_str());
+        
+        string strLayer2 = l2Folder + to_string(work);
+        char *layer2 = const_cast<char*>(strLayer2.c_str());
+        
+        int joinResults = processRefinement(layer1, layer2);
+        
+		MPI_Send(&joinResults, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+  }
+} */
+
 int masterWithOutLoadCalc(int numFiles)
 {
-   int	nProcs, rank, work;
+    int	nProcs, rank, work;
 	int       result;
 	
 	MPI_Status     status;
