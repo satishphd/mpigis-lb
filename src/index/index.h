@@ -26,6 +26,8 @@ class Index
   
   public:
   
+  int filterQuery(list<Geometry*> *poly);
+  
   void createRTree(vector<GeomInfo*> *envs);
 
   void createRTree(vector<Envelope*> *envs);
