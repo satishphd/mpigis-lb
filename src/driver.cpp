@@ -571,8 +571,8 @@ int main_grid(int argc, char **argv)
 	
     compute_t1 = MPI_Wtime();
   
-    MRDriver driver;
-    driver.createReducers(&args, geomMapPair);
+   // MRDriver driver;
+   // driver.createReducers(&args, geomMapPair);
 	
     compute_t2 = MPI_Wtime(); 
 	
@@ -757,7 +757,9 @@ int main(int argc, char **argv)
     
     Join spatialJoin;
 
-    list<pair<Geometry*, Geometry*> > *pairs = spatialJoin.join(intersectionMap);
+    //list<pair<Geometry*, Geometry*> > *pairs = spatialJoin.join(intersectionMap);
+    
+    spatialJoin.join(intersectionMap);
     
     /*Overlay overlay;
     list<pair<Geometry*, Geometry*> > *pairs = overlay.overlay(intersectionMap);	
