@@ -1,4 +1,5 @@
 #include "geom_util/fileRead.h"
+#include <queue>
 
 // returns a map of <cellid, MBRs list> for all files
 map<int, list<Envelope*>* >* FileReader :: readMBRFiles(string path, int numFiles)
@@ -102,6 +103,41 @@ list<Geometry*>* FileReader :: readWKTFile(char *filename, Config *args)
     
 }
 
+int averageSize(list<Geometry*> *geoms)
+{
+    long int sum = 0;
+    for (list<Geometry*>::iterator it = geoms->begin(); it != geoms->end(); ++it)
+    {
+       Geometry* geom = *it;
+       sum += geom->getNumPoints();
+    } 
+    
+    int averageLen = sum/geoms->size();
+    printf("Avg = %d \n", averageLen);
+    fflush(stdout);
+    
+    return averageLen;
+}
+
+void topK(list<Geometry*> *geoms)
+{
+   std::priority_queue<int> q;
+   for (list<Geometry*>::iterator it = geoms->begin(); it != geoms->end(); ++it)
+    {
+       Geometry* geom = *it;
+       q.push(geom->getNumPoints());
+    }
+    
+    int i = 0;
+    
+    while(!q.empty() && i < 100) {
+        std::cout << q.top() << " ";
+        q.pop();
+        i++;
+    }
+    std::cout << '\n';
+}
+
 list<Geometry*>* FileReader :: readSampleFile(char *filename, Config *args)
 {
 	FileSplits *layer = new FileSplits();
@@ -117,11 +153,16 @@ list<Geometry*>* FileReader :: readSampleFile(char *filename, Config *args)
     	}
 	
 		//cout<<"P"<<args->rank<<" Number of lines in layer2 "<<layer2->numLines()<<endl;
-	
+     
 		Parser *parser = new WKTParser();
     
     	list<Geometry*> *geoms = parser->parse(*layer);
+    	cout<<" Number of rivers "<<geoms->size()<<endl;
     	
+    	averageSize(geoms);
+    	
+    	topK(geoms);
+    		
     	return geoms;
     }
     else
