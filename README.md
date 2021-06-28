@@ -64,8 +64,16 @@ MPI_Bcast(&in_rect, 1, MPI_RECT, 0, MPI_COMM_WORLD);
 ```
 
 ```
+GEOS library is a dependency for MPI-GIS. Usually, linux based system already contain geos installed.
+Library dependency on GEOS is to perform sequential computational geometry algorithms on GIS data (https://trac.osgeo.org/geos/)
+Assuming GEOS is already present or you have installed GEOS, then use geos-config tool to find out the library path and include path for geos installation.
+Type geos-config
+geos-config --libs
+geos-config --includes
+```
+
+```
 Build Instructions: make
 Run: mpirun -np #processes ./mpiio #filePartitions datasets/sports datasets/cemetery 
 Download datasets from http://spatialhadoop.cs.umn.edu/datasets.html and https://star.cs.ucr.edu/
-Library dependency on GEOS to perform computational geometry algorithms (https://trac.osgeo.org/geos/)
 ```
