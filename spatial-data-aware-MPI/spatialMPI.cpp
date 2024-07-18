@@ -69,6 +69,14 @@ MPI_Datatype SpatialMPI :: createRectType()
     return MPI_RECT;
 }
 
+/*
+int MPI_Type_create_struct(int count,
+                          int array_of_blocklengths[],
+                          MPI_Aint array_of_displacements[],
+                          MPI_Datatype array_of_types[],
+                          MPI_Datatype *newtype)
+*/
+
 MPI_Datatype SpatialMPI :: createPointType()
 {
     const int nitems = 3;
